@@ -1,12 +1,12 @@
 
 import 'package:flutter/material.dart';
 
-
 class ItemHomepage {
   final String name;
   final IconData icon;
+  final Color color;
 
-  ItemHomepage(this.name, this.icon);
+  ItemHomepage(this.name, this.icon, this.color);
 }
 
 
@@ -18,16 +18,17 @@ class MyHomePage extends StatelessWidget {
   final String nama = "Lynorexly Imanuel Tatipikalawan";
   final String kelas = "PBP";
 
-  // Daftar tombol menu
+  // Daftar tombol menu dengan warna berbeda
   final List<ItemHomepage> items = [
-    ItemHomepage("Lihat Proyek", Icons.folder),
-    ItemHomepage("Tambah Proyek", Icons.add_circle),
-    ItemHomepage("Logout", Icons.logout),
+    ItemHomepage("Lihat Proyek", Icons.folder, Colors.blue),
+    ItemHomepage("Tambah Proyek", Icons.add_circle, Colors.green),
+    ItemHomepage("Logout", Icons.logout, Colors.red),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // APP BAR
       appBar: AppBar(
         title: const Text(
           'MyPortfolio',
@@ -39,7 +40,7 @@ class MyHomePage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
 
-
+      // BODY
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -63,14 +64,13 @@ class MyHomePage extends StatelessWidget {
                 padding: EdgeInsets.only(top: 16.0),
                 child: Text(
                   'Selamat datang di MyPortfolio Mobile!',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18.0,
                   ),
                 ),
               ),
-
-              const SizedBox(height: 16.0),
 
               // Grid tombol menu
               GridView.count(
@@ -132,7 +132,9 @@ class InfoCard extends StatelessWidget {
   }
 }
 
-
+// ==========================================
+// WIDGET ITEM CARD
+// ==========================================
 class ItemCard extends StatelessWidget {
   final ItemHomepage item;
 
@@ -141,7 +143,7 @@ class ItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).colorScheme.secondary,
+      color: item.color,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -170,7 +172,7 @@ class ItemCard extends StatelessWidget {
                   color: Colors.white,
                   size: 30.0,
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 6),
                 Text(
                   item.name,
                   textAlign: TextAlign.center,
