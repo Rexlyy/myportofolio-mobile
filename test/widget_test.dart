@@ -37,17 +37,16 @@ void main() {
     );
   });
 
-  testWidgets('Tambah Proyek button displays SnackBar',
+  testWidgets('Tambah Proyek button navigates to ProjectFormPage',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
 
     await tester.tap(find.text('Tambah Proyek'));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    expect(
-      find.text('Kamu telah menekan tombol Tambah Proyek!'),
-      findsOneWidget,
-    );
+    expect(find.text('Add New Project'), findsOneWidget);
+    expect(find.text('Nama Proyek'), findsNWidgets(2));
+    expect(find.text('Deskripsi'), findsOneWidget);
   });
 
   testWidgets('Logout button displays SnackBar',
