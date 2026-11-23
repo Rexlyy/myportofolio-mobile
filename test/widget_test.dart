@@ -53,9 +53,15 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
 
+    // Scroll agar tombol Logout terlihat
+    await tester.ensureVisible(find.text('Logout'));
+    await tester.pumpAndSettle();
+
+    // Tekan tombol Logout
     await tester.tap(find.text('Logout'));
     await tester.pump();
 
+    // Periksa SnackBar
     expect(
       find.text('Kamu telah menekan tombol Logout!'),
       findsOneWidget,

@@ -3,7 +3,7 @@ import 'package:myportofolio_mobile/models/item_homepage.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:myportofolio_mobile/widgets/project_card.dart';
 
-  
+
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
@@ -17,6 +17,7 @@ class MyHomePage extends StatelessWidget {
   final List<ItemHomepage> items = [
     ItemHomepage("Lihat Proyek", Icons.folder, Colors.blue),
     ItemHomepage("Tambah Proyek", Icons.add_circle, Colors.green),
+    ItemHomepage("Tambah Pengalaman", Icons.work, Colors.purple),
     ItemHomepage("Logout", Icons.logout, Colors.red),
   ];
 
