@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 
@@ -6,21 +5,17 @@ class ExperienceFormPage extends StatefulWidget {
   const ExperienceFormPage({super.key});
 
   @override
-  State<ExperienceFormPage> createState() =>
-      _ExperienceFormPageState();
+  State<ExperienceFormPage> createState() => _ExperienceFormPageState();
 }
 
 class _ExperienceFormPageState extends State<ExperienceFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _companyController =
-      TextEditingController();
+  final TextEditingController _companyController = TextEditingController();
 
-  final TextEditingController _positionController =
-      TextEditingController();
+  final TextEditingController _positionController = TextEditingController();
 
-  final TextEditingController _descriptionController =
-      TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   DateTime? _startDate;
   DateTime? _endDate;
@@ -77,9 +72,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
   Future<void> _selectEndDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _endDate ??
-          _startDate ??
-          DateTime.now(),
+      initialDate: _endDate ?? _startDate ?? DateTime.now(),
       firstDate: _startDate ?? DateTime(1950),
       lastDate: DateTime(2100),
     );
@@ -235,8 +228,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                           field.didChange(_startDate);
                         },
                         child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               _startDate == null
@@ -261,8 +253,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                       return 'Tanggal selesai harus dipilih!';
                     }
 
-                    if (_startDate != null &&
-                        _endDate!.isBefore(_startDate!)) {
+                    if (_startDate != null && _endDate!.isBefore(_startDate!)) {
                       return 'Tanggal selesai tidak boleh sebelum tanggal mulai!';
                     }
 
@@ -281,8 +272,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                           field.didChange(_endDate);
                         },
                         child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               _endDate == null

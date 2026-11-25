@@ -6,4 +6,4 @@ class ItemHomepage {
   final Color color;
 
   const ItemHomepage(this.name, this.icon, this.color);
-} 
+}

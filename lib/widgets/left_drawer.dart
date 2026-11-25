@@ -1,21 +1,27 @@
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:myportofolio_mobile/screens/project_form.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/screens/login_screen.dart';
+
+import 'package:myportofolio_mobile/services/auth_state.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Mengamati perubahan status login.
+    final isLoggedIn = context.watch<AuthState>().isLoggedIn;
+
     return Drawer(
       child: ListView(
         children: [
           // Drawer Header
           const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.indigo,
-            ),
+            decoration: BoxDecoration(color: Colors.indigo),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -30,10 +36,7 @@ class LeftDrawer extends StatelessWidget {
                 SizedBox(height: 10),
                 Text(
                   'Explore personal projects and experiences!',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 15, color: Colors.white),
                 ),
               ],
             ),
@@ -44,11 +47,7 @@ class LeftDrawer extends StatelessWidget {
             leading: const Icon(Icons.home_outlined),
             title: const Text('Home'),
             onTap: () {
-              // Kembali ke halaman utama
-              Navigator.popUntil(
-                context,
-                (route) => route.isFirst,
-              );
+              Navigator.popUntil(context, (route) => route.isFirst);
             },
           ),
 
@@ -57,10 +56,8 @@ class LeftDrawer extends StatelessWidget {
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('Add Project'),
             onTap: () {
-              // Tutup Drawer
               Navigator.pop(context);
 
-              // Buka halaman Add Project
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -70,12 +67,16 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
 
-          // Navigasi Add Experience
+          // Navigasi Add Experience (Protected)
           ListTile(
             leading: const Icon(Icons.work_outline),
             title: const Text('Add Experience'),
-            onTap: () {
+            onTap: () async {
               Navigator.pop(context);
+
+              final loggedIn = await ensureLoggedIn(context);
+
+              if (!loggedIn || !context.mounted) return;
 
               Navigator.push(
                 context,
@@ -85,6 +86,41 @@ class LeftDrawer extends StatelessWidget {
               );
             },
           ),
+
+          const Divider(),
+
+          // Login atau Logout
+          if (!isLoggedIn)
+            ListTile(
+              leading: const Icon(Icons.login),
+              title: const Text('Login'),
+              onTap: () {
+                Navigator.pop(context);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+            )
+          else
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () async {
+                Navigator.pop(context);
+
+                try {
+                  await context.read<AuthState>().logout();
+                } catch (error) {
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Logout gagal: $error')),
+                  );
+                }
+              },
+            ),
         ],
       ),
     );

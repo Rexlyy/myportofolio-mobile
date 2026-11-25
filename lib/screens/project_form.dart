@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:provider/provider.dart';
 
+import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:myportofolio_mobile/services/api_client.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
+import 'package:myportofolio_mobile/models/project.dart';
 
 class ProjectFormPage extends StatefulWidget {
   const ProjectFormPage({super.key});
@@ -10,8 +14,9 @@ class ProjectFormPage extends StatefulWidget {
 }
 
 class _ProjectFormPageState extends State<ProjectFormPage> {
-  // Form key
   final _formKey = GlobalKey<FormState>();
+
+  bool _isSubmitting = false;
 
   // Variabel untuk menyimpan input
   String _projectName = "";
@@ -29,12 +34,68 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
     'Other',
   ];
 
+  // Fungsi untuk mengirim data proyek ke Django
+  Future<void> _submitProject() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final authState = context.read<AuthState>();
+    final token = authState.token;
+
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Silakan login terlebih dahulu.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final project = Project(
+        id: '',
+        title: _projectName,
+        description: _description,
+        techStack: _technologies
+            .split(',')
+            .map((technology) => technology.trim())
+            .where((technology) => technology.isNotEmpty)
+            .toList(),
+        projectUrl: _projectLink,
+        projectImageUrl: '',
+      );
+
+      await context.read<ApiClient>().createProject(project, token: token);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Proyek berhasil ditambahkan!')),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal menambahkan proyek: $e')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add New Project'),
-      ),
+      appBar: AppBar(title: const Text('Add New Project')),
       drawer: const LeftDrawer(),
       body: Form(
         key: _formKey,
@@ -51,9 +112,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (String value) {
-                    setState(() {
-                      _projectName = value;
-                    });
+                    _projectName = value;
                   },
                   validator: (String? value) {
                     if (value == null || value.trim().isEmpty) {
@@ -75,9 +134,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                   ),
                   maxLines: 3,
                   onChanged: (String value) {
-                    setState(() {
-                      _description = value;
-                    });
+                    _description = value;
                   },
                   validator: (String? value) {
                     if (value == null || value.trim().isEmpty) {
@@ -104,9 +161,11 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
-                    setState(() {
-                      _category = newValue!;
-                    });
+                    if (newValue != null) {
+                      setState(() {
+                        _category = newValue;
+                      });
+                    }
                   },
                 ),
               ),
@@ -121,9 +180,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (String value) {
-                    setState(() {
-                      _technologies = value;
-                    });
+                    _technologies = value;
                   },
                 ),
               ),
@@ -139,9 +196,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                   ),
                   keyboardType: TextInputType.url,
                   onChanged: (String value) {
-                    setState(() {
-                      _projectLink = value;
-                    });
+                    _projectLink = value;
                   },
                 ),
               ),
@@ -150,63 +205,10 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text(
-                              'Proyek berhasil ditambahkan!',
-                            ),
-                            content: SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Nama Proyek: $_projectName',
-                                  ),
-                                  Text(
-                                    'Deskripsi: $_description',
-                                  ),
-                                  Text(
-                                    'Kategori: $_category',
-                                  ),
-                                  Text(
-                                    'Teknologi: $_technologies',
-                                  ),
-                                  Text(
-                                    'Tautan: $_projectLink',
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                child: const Text('OK'),
-                                onPressed: () {
-                                  _formKey.currentState!.reset();
-
-                                  setState(() {
-                                    _projectName = "";
-                                    _description = "";
-                                    _category = "Web Development";
-                                    _technologies = "";
-                                    _projectLink = "";
-                                  });
-
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    }
-                  },
-                  child: const Text('Save'),
+                  onPressed: _isSubmitting ? null : _submitProject,
+                  child: _isSubmitting
+                      ? const CircularProgressIndicator()
+                      : const Text('Save'),
                 ),
               ),
             ],
